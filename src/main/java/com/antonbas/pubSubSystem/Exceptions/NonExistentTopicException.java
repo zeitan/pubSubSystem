@@ -1,4 +1,4 @@
-package com.antonbas.pubSubSystem.Exceptions;
+package com.antonbas.pubSubSystem.exceptions;
 
 public class NonExistentTopicException extends Exception {
     public NonExistentTopicException(String message) {

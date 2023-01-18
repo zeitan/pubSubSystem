@@ -30,7 +30,7 @@ public class Queue {
     }
 
     public Queue(){
-        new Queue(DEFAULT_TICKER);
+        this(DEFAULT_TICKER);
     }
 
     public List<Message> getMessages(String subKey) {

@@ -1,6 +1,7 @@
 package com.antonbas.pubSubSystem.domain;
 
-import com.antonbas.pubSubSystem.Exceptions.NonExistentTopicException;
+import com.antonbas.pubSubSystem.exceptions.NonExistentTopicException;
+import com.antonbas.pubSubSystem.exceptions.NotSubscribedException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +33,7 @@ public class PubSub {
 
     public void publish(String topicName, Message message) throws NonExistentTopicException {
         if (!queues.containsKey(topicName))
-            throw new NonExistentTopicException(topicName);;
+            throw new NonExistentTopicException(topicName);
         Queue queue = queues.get(topicName);
         queue.addMessage(message);
         queues.put(topicName, queue);
@@ -42,9 +43,11 @@ public class PubSub {
         queues.putIfAbsent(topicName, new Queue(5));
     }
 
-    public List<Message> getMessagesPerTopic(String subKey, String topicName){
+    public List<Message> getMessagesPerTopic(String subKey, String topicName) throws NotSubscribedException, NonExistentTopicException {
+        if (!subscriptions.containsKey(subKey) || subscriptions.get(subKey).size() == 0)
+            throw new NotSubscribedException(" for the topic:" + topicName );
         if (!queues.containsKey(topicName))
-            return Collections.EMPTY_LIST;
+            throw new NonExistentTopicException(topicName);
         return queues.get(topicName).getMessages(subKey);
     }
 

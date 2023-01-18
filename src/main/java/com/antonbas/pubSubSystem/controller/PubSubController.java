@@ -1,10 +1,11 @@
 package com.antonbas.pubSubSystem.controller;
 
 
-import com.antonbas.pubSubSystem.Exceptions.AuthFailedTopicException;
-import com.antonbas.pubSubSystem.Exceptions.NonExistentTopicException;
+import com.antonbas.pubSubSystem.exceptions.AuthFailedTopicException;
+import com.antonbas.pubSubSystem.exceptions.NonExistentTopicException;
 import com.antonbas.pubSubSystem.dto.Message;
 import com.antonbas.pubSubSystem.dto.UserInfo;
+import com.antonbas.pubSubSystem.exceptions.NotSubscribedException;
 import com.antonbas.pubSubSystem.service.PubSubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class PubSubController {
     PubSubService pubSubService;
 
     @ResponseStatus(value = HttpStatus.OK)
-    @PostMapping(value = "/topics/{topic_name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/topics/{topic_name}")
     public ResponseEntity<String> publish(@PathVariable("topic_name") String topicName, @RequestBody Message message) {
         try {
             pubSubService.publish(topicName, message);
@@ -47,10 +48,16 @@ public class PubSubController {
         catch(NoSuchAlgorithmException nsae) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, nsae.getMessage());
         }
+        catch(NonExistentTopicException nete) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, nete.getMessage());
+        }
+        catch(NotSubscribedException nse) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, nse.getMessage());
+        }
     }
 
     @ResponseStatus(value = HttpStatus.OK)
-    @PostMapping(value = "/topics/{topic_name}/subscribe", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/topics/{topic_name}/subscribe")
     public ResponseEntity<String> subscribe(@PathVariable("topic_name") String topicName, @RequestBody UserInfo userInfo) {
         try {
             return new ResponseEntity<>(pubSubService.subscribe(topicName, userInfo.userId), HttpStatus.OK);
@@ -64,11 +71,11 @@ public class PubSubController {
     }
 
     @ResponseStatus(value = HttpStatus.OK)
-    @DeleteMapping(value = "/topics/{topic_name}/unsubscribe", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String unsubscribe(@PathVariable("topic_name") String topicName, @RequestBody UserInfo userInfo) {
+    @DeleteMapping(value = "/topics/{topic_name}/unsubscribe")
+    public ResponseEntity<String> unsubscribe(@PathVariable("topic_name") String topicName, @RequestBody UserInfo userInfo) {
         try {
             pubSubService.unsubscribe(topicName, userInfo.userId, userInfo.subKey);
-            return "OK";
+            return new ResponseEntity<>("unsubscribed", HttpStatus.OK);
         }
         catch(AuthFailedTopicException afte) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, afte.getMessage());
