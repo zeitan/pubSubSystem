@@ -30,9 +30,9 @@ To have our WAR file deployed and running in Tomcat, we'll need to complete the 
 
 
 ## TO-DOs (Next Steps)
-1. Implement Streaming fashion data in get_messages endpoint.
-2. Add lombok to reduce the exposure of some fields/properties in some classes
-3. Improve the security mechanism to handle user/subKey better.
-4. Improve in message format returned by some of the endpoints
-5. Add Swagger to have documentation of the endpoints.
-6. Increment unit test coverage and add integration tests.
+1. [Implement Streaming fashion data in get_messages endpoint](https://github.com/zeitan/pubSubSystem/issues/1).
+2. [Add lombok to reduce the exposure of some fields/properties in some classes](https://github.com/zeitan/pubSubSystem/issues/2).
+3. [Improve the security mechanism to handle user/subKey better](https://github.com/zeitan/pubSubSystem/issues/3).
+4. [Improve in message format returned by some of the endpoints](https://github.com/zeitan/pubSubSystem/issues/4).
+5. [Add Swagger to have documentation of the endpoints](https://github.com/zeitan/pubSubSystem/issues/5).
+6. [Increment unit test coverage and add integration tests](https://github.com/zeitan/pubSubSystem/issues/6).
