@@ -62,7 +62,8 @@ public class Queue {
         numSubscribers.incrementAndGet();
     }
 
-    public void decreaseSubscribers() {
+    public void decreaseSubscribers(String subKey) {
+        consumerServed.remove(subKey);
         numSubscribers.decrementAndGet();
     }
 

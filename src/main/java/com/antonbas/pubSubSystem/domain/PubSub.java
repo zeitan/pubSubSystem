@@ -62,7 +62,7 @@ public class PubSub {
         topicsSubscribed.remove(topicName);
         subscriptions.put(subKey, topicsSubscribed);
         Queue queue = queues.get(topicName);
-        queue.decreaseSubscribers();
+        queue.decreaseSubscribers(subKey);
     }
 
 }
