@@ -51,6 +51,8 @@ public class Queue {
                 messagesFiltered  = IntStream.range(lastSize, newSize).mapToObj(i -> this.messages.get(i))
                         .filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
             }
+            else
+                messagesFiltered = Collections.EMPTY_LIST;
 
         }
         return messagesFiltered;

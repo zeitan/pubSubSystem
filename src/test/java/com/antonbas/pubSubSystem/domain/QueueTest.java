@@ -43,7 +43,7 @@ public class QueueTest {
         assertEquals(2, messages.size());
         Thread.sleep(1000);
         messages = queue.getMessages("testKey");
-        assertEquals(2, messages.size());
+        assertEquals(0, messages.size());
     }
 
     @Test
