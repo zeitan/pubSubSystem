@@ -39,19 +39,17 @@ public class Queue {
         if(this.messages.stream().noneMatch(x -> x.expiration.compareTo(Instant.now()) > 0))
             return Collections.EMPTY_LIST;
         List<Message> messagesFiltered;
+        messagesFiltered = this.messages.stream().filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());;
         if (!consumerServed.containsKey(subKey)) {
-            messagesFiltered = this.messages.stream().filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
             consumerServed.put(subKey, messagesFiltered.size() -1);
         }
         else {
             int lastSize = consumerServed.get(subKey);
             int newSize = this.messages.size() - 1;
-            if (lastSize == newSize)
-                messagesFiltered = this.messages.stream().filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
-            else {
+            if (lastSize != newSize) {
+                consumerServed.put(subKey, messagesFiltered.size() -1);
                 messagesFiltered  = IntStream.range(lastSize, newSize).mapToObj(i -> this.messages.get(i))
                         .filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
-                consumerServed.put(subKey, consumerServed.put(subKey, this.messages.size() -1));
             }
 
         }
