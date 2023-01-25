@@ -81,6 +81,7 @@ public class Queue {
             return;
         }
         this.messages = this.messages.stream().filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
+        this.consumerServed.replaceAll((key, currentValue)  -> (this.messages.size() -1 < currentValue ) ? this.messages.size() -1 : currentValue );
     }
 
 }
