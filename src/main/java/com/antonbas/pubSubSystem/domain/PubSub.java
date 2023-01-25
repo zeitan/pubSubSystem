@@ -21,7 +21,7 @@ public class PubSub {
         return pubSubSingleton;
     }
 
-    public synchronized void subscribe(String topicName, String subKey) throws NonExistentTopicException  {
+    public void subscribe(String topicName, String subKey) throws NonExistentTopicException  {
         if (!queues.containsKey(topicName))
             throw new NonExistentTopicException(topicName);
         Set<String>  topicsSubscribed = subscriptions.getOrDefault(subKey, new HashSet<>());
