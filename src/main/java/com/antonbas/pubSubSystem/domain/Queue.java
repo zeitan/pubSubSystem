@@ -45,9 +45,9 @@ public class Queue {
         }
         else {
             int lastSize = consumerServed.get(subKey);
-            int newSize = this.messages.size() - 1;
+            int newSize = messagesFiltered.size() - 1;
             if (lastSize != newSize) {
-                consumerServed.put(subKey, messagesFiltered.size() -1);
+                consumerServed.put(subKey, newSize);
                 messagesFiltered  = IntStream.range(lastSize, newSize).mapToObj(i -> this.messages.get(i))
                         .filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
             }
