@@ -14,7 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import reactor.core.publisher.Flux;
+
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.List;
 
 
@@ -42,7 +45,7 @@ public class PubSubController {
         try {
             return pubSubService.getMessages(topicName, userId, subKey);
         }
-        catch(AuthFailedTopicException afte) {
+        catch(AuthFailedTopicException | NotSubscribedException afte) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, afte.getMessage());
         }
         catch(NoSuchAlgorithmException nsae) {
@@ -50,9 +53,6 @@ public class PubSubController {
         }
         catch(NonExistentTopicException nete) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, nete.getMessage());
-        }
-        catch(NotSubscribedException nse) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, nse.getMessage());
         }
     }
 
@@ -86,6 +86,11 @@ public class PubSubController {
         catch (NonExistentTopicException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
         }
+    }
+
+    @GetMapping(value = "/data/flux", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Object> streamDataFlux() {
+        return Flux.interval(Duration.ofSeconds(1)).map(i -> "Data stream line - " + i );
     }
 
 }
