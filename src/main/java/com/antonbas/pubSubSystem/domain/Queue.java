@@ -38,8 +38,7 @@ public class Queue {
             return Collections.EMPTY_LIST;
         if(this.messages.stream().noneMatch(x -> x.expiration.compareTo(Instant.now()) > 0))
             return Collections.EMPTY_LIST;
-        List<Message> messagesFiltered;
-        messagesFiltered = this.messages.stream().filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());;
+        List<Message> messagesFiltered = this.messages.stream().filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
         if (!consumerServed.containsKey(subKey)) {
             consumerServed.put(subKey, messagesFiltered.size() -1);
         }

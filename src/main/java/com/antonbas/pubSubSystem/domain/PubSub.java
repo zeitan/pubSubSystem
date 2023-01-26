@@ -8,9 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PubSub {
     //subKeys, List of topics (channels)
-    private static final  Map<String, Set<String>> subscriptions =  new ConcurrentHashMap<>();;
+    private  final Map<String, Set<String>> subscriptions =  new ConcurrentHashMap<>();;
     //topic_name(channel), List of messages
-    private final static Map<String, Queue> queues = new ConcurrentHashMap<>();;
+    private final Map<String, Queue> queues = new ConcurrentHashMap<>();
 
     private static final PubSub pubSubSingleton = new PubSub();
 
