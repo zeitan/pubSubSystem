@@ -25,7 +25,7 @@ public class PubSubControllerTest extends AbstractTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE).content(inputJson)).andReturn();
 
         int status = mvcResult.getResponse().getStatus();
-        assertEquals(200, status);
+        assertEquals(201, status);
         String content = mvcResult.getResponse().getContentAsString();
         assertEquals(content, "message published");
     }
