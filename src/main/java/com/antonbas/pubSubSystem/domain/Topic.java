@@ -27,27 +27,28 @@ public class Topic {
         this(DEFAULT_NAME);
     }
 
-    public  List<Message> getMessages(String subKey) {
-        synchronized (this.messages) {
-            clearExpiredElementsFromQueue();
-            if (this.messages.size() == 0)
-                return Collections.EMPTY_LIST;
-            int currentSize = this.messages.size();
-            if (!consumerServed.containsKey(subKey)) {
-                consumerServed.putIfAbsent(subKey, currentSize - 1);
-                return this.messages;
-            } else {
-                int lastSize = consumerServed.get(subKey);
-                int newSize = currentSize - 1;
-                if (lastSize != newSize) {
-                    consumerServed.put(subKey, newSize);
-                    return IntStream.range(lastSize, newSize).mapToObj(this.messages::get)
-                            .filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
-                } else
-                    return Collections.EMPTY_LIST;
+    public  synchronized List<Message> getMessages(String subKey) {
+        clearExpiredElementsFromTopic();
+        if (this.messages.size() == 0)
+            return Collections.EMPTY_LIST;
+        int currentSize = this.messages.size();
+        List<Message> messagesToReturn;
+        if (!consumerServed.containsKey(subKey)) {
+            consumerServed.putIfAbsent(subKey, currentSize - 1);
+            messagesToReturn = new LinkedList<>(this.messages) ;
+        } else {
+            int lastSize = consumerServed.get(subKey);
+            int newSize = currentSize - 1;
+            if (lastSize != newSize) {
+                consumerServed.put(subKey, newSize);
+                messagesToReturn = IntStream.range(lastSize, newSize).mapToObj(this.messages::get)
+                        .filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
+            } else
+                messagesToReturn = Collections.EMPTY_LIST;
 
-            }
         }
+        clearTopicIfAllSubscribersWereServed();
+        return messagesToReturn;
     }
 
     public void addSubscribers() {
@@ -55,26 +56,33 @@ public class Topic {
     }
 
     public void decreaseSubscribers(String subKey) {
-        consumerServed.remove(subKey);
-        numSubscribers.decrementAndGet();
+        synchronized (this.numSubscribers) {
+            this.consumerServed.remove(subKey);
+            this.numSubscribers.decrementAndGet();
+        }
     }
 
     public synchronized void addMessage(Message message) {
         messages.add(message);
     }
 
-    private void clearExpiredElementsFromQueue() {
-        if (this.messages.size() == 0)
-            return;
-        //messages were served for all the consumers subscribed;
-        if(numSubscribers.get() > 0 && consumerServed.size() >= numSubscribers.get() &&
-                consumerServed.values().stream().filter(x -> x + 1 ==  this.messages.size() ).count() == numSubscribers.get()) {
-            this.messages.clear();
-            this.consumerServed.clear();
-            return;
+    private void clearExpiredElementsFromTopic() {
+        synchronized (this.numSubscribers) {
+            if (this.messages.size() == 0)
+                return;
+            this.messages.removeIf(x -> x.expiration.compareTo(Instant.now()) < 0);
+            this.consumerServed.replaceAll((key, currentValue) -> (this.messages.size() - 1 < currentValue) ? this.messages.size() - 1 : currentValue);
         }
-        this.messages.removeIf( x -> x.expiration.compareTo(Instant.now()) < 0 );
-        this.consumerServed.replaceAll((key, currentValue)  -> (this.messages.size() -1 < currentValue ) ? this.messages.size() -1 : currentValue );
+    }
+
+    private void clearTopicIfAllSubscribersWereServed() {
+        synchronized (this.numSubscribers) {
+            if (this.numSubscribers.get() > 0 && this.consumerServed.size() >= this.numSubscribers.get() &&
+                    this.consumerServed.values().stream().filter(x -> x + 1 == this.messages.size()).count() == this.numSubscribers.get()) {
+                this.messages.clear();
+                this.consumerServed.clear();
+            }
+        }
     }
 
 }
