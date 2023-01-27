@@ -1,6 +1,6 @@
 # Read Me First
 ## Overall Design
-1. The pub/sub system is based on a queue system by topic/channel and each queue contains a list of messages. The main classes
+1. The pub/sub system is based on a topic system by topic/channel and each topic contains a list of messages. The main classes
    handling the domain are:
     * Queue class: The class contains a list of messages with insertion order respected (LinkedList<>). 
       The class checks its list of messages every 5 seconds(default ticker but can be defined in another value) and remove the messages based on the criteria defined (if they were served to all the subscribers or if they are expired). In any case, getMessage check if the messages are expired before returning them, and if a consumer requested in a previous opportunity only are returned the newest.

@@ -30,8 +30,8 @@ public class PubSubService {
     public void publish(String topicName, Message message) throws NonExistentTopicException {
         pubSub.createTopic(topicName);
         Instant instant = Instant.now();
-        Instant expiration = instant.plusSeconds(message.duration);
-        pubSub.publish(topicName, new com.antonbas.pubSubSystem.domain.Message(message.payload, expiration));
+        Instant expiration = instant.plusSeconds(message.getDuration());
+        pubSub.publish(topicName, new com.antonbas.pubSubSystem.domain.Message(message.getPayload(), expiration));
     }
 
     public String subscribe(String topicName, String userId) throws NoSuchAlgorithmException, NonExistentTopicException{
@@ -60,13 +60,15 @@ public class PubSubService {
                 throw  new AuthFailedTopicException("user id + sub key");
 
         }
-        catch(NoSuchAlgorithmException nse) {
-            logger.info("NoSuchAlgorithmException-unsubscribe");
-            throw  nse;
+        catch(NoSuchAlgorithmException nae) {
+            logger.info("NoSuchAlgorithmException-unsubscribe" + nae.getMessage());
+            throw  nae;
         }
         catch(NonExistentTopicException nete) {
             logger.info("NonExistentTopicException-unsubscribe:" + nete.getMessage());
             throw  nete;
+        } catch (NotSubscribedException nse) {
+            logger.info("NotSubscribedException-unsubscribe:" + nse.getMessage());
         }
     }
 
@@ -74,7 +76,7 @@ public class PubSubService {
             throws AuthFailedTopicException, NoSuchAlgorithmException, NonExistentTopicException, NotSubscribedException{
         try {
             if (subKey.equals(hashCreator.createMD5Hash(userId)))
-                return pubSub.getMessagesPerTopic(subKey, topicName).stream().map(x -> x.payload).collect(Collectors.toList());
+                return pubSub.getMessagesPerTopic(subKey, topicName).stream().map(com.antonbas.pubSubSystem.domain.Message::getPayload).collect(Collectors.toList());
             else
                 throw  new AuthFailedTopicException("user id + sub key");
 

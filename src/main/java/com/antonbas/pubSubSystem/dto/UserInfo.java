@@ -1,6 +1,11 @@
 package com.antonbas.pubSubSystem.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class UserInfo {
-    public String userId;
-    public String subKey;
+    private String userId;
+    private String subKey;
 }
