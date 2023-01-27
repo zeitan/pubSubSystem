@@ -28,7 +28,7 @@ public class PubSubController {
     public ResponseEntity<String> publish(@PathVariable("topic_name") String topicName, @RequestBody Message message) {
         try {
             pubSubService.publish(topicName, message);
-            return new ResponseEntity<>("message published", HttpStatus.OK);
+            return new ResponseEntity<>("message published", HttpStatus.CREATED);
         }
         catch (NonExistentTopicException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
