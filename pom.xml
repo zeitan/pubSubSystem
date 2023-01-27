@@ -32,6 +32,13 @@
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<!--<scope>provided</scope>-->
 		</dependency>
+		<dependency>
+			<groupId>com.vmlens</groupId>
+			<artifactId>api</artifactId>
+			<version>1.1.5</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

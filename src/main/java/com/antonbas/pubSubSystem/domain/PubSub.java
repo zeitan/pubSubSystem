@@ -7,10 +7,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PubSub {
-    //subKeys, List of topics (channels)
+    //subKeys, List of topics (topic_name)
     private  final Map<String, Set<String>> subscriptions =  new ConcurrentHashMap<>();;
     //topic_name(channel), List of messages
-    private final Map<String, Queue> queues = new ConcurrentHashMap<>();
+    private final Map<String, Topic> topics = new ConcurrentHashMap<>();
 
     private static final PubSub pubSubSingleton = new PubSub();
 
@@ -21,48 +21,47 @@ public class PubSub {
         return pubSubSingleton;
     }
 
-    public void subscribe(String topicName, String subKey) throws NonExistentTopicException  {
-        if (!queues.containsKey(topicName))
-            throw new NonExistentTopicException(topicName);
-        Set<String>  topicsSubscribed = subscriptions.getOrDefault(subKey, new HashSet<>());
-        topicsSubscribed.add(topicName);
-        subscriptions.put(subKey, topicsSubscribed);
-        Queue queue = queues.get(topicName);
-        queue.addSubscribers();
+    public synchronized void subscribe(String topicName, String subKey) throws NonExistentTopicException  {
+        checkTopicExistence(topicName);
+        Set<String> topicsSubscribed = subscriptions.getOrDefault(subKey, new HashSet<>());
+        if (topicsSubscribed.add(topicName))
+            topics.get(topicName).addSubscribers();
     }
 
     public void publish(String topicName, Message message) throws NonExistentTopicException {
-        if (!queues.containsKey(topicName))
-            throw new NonExistentTopicException(topicName);
-        Queue queue = queues.get(topicName);
-        queue.addMessage(message);
-        queues.put(topicName, queue);
+        checkTopicExistence(topicName);
+        topics.get(topicName).addMessage(message);
     }
 
     public void createTopic(String topicName) {
-        queues.putIfAbsent(topicName, new Queue(5));
+        topics.putIfAbsent(topicName, new Topic(topicName));
     }
 
     public List<Message> getMessagesPerTopic(String subKey, String topicName) throws NotSubscribedException, NonExistentTopicException {
-        if (!subscriptions.containsKey(subKey) || subscriptions.get(subKey).size() == 0)
-            throw new NotSubscribedException(" for the topic:" + topicName );
-        if (!queues.containsKey(topicName))
-            throw new NonExistentTopicException(topicName);
-        return queues.get(topicName).getMessages(subKey);
+        checkEntitiesExistence(subKey, topicName);
+        return topics.get(topicName).getMessages(subKey);
     }
 
     public Set<String> getSubscriptionsPerUser(String subKey) {
         return subscriptions.getOrDefault(subKey, Collections.EMPTY_SET);
     }
 
-    public synchronized void removeSubscription(String subKey, String topicName) throws NonExistentTopicException  {
-        if (!queues.containsKey(topicName))
-            throw new NonExistentTopicException(topicName);;
+    public synchronized void removeSubscription(String subKey, String topicName) throws NonExistentTopicException, NotSubscribedException {
+        checkEntitiesExistence(subKey, topicName);
         Set<String> topicsSubscribed = subscriptions.get(subKey);
-        topicsSubscribed.remove(topicName);
-        subscriptions.put(subKey, topicsSubscribed);
-        Queue queue = queues.get(topicName);
-        queue.decreaseSubscribers(subKey);
+        if (topicsSubscribed.remove(topicName))
+            topics.get(topicName).decreaseSubscribers(subKey);
+    }
+
+    private void checkEntitiesExistence(String subKey, String topicName) throws NotSubscribedException, NonExistentTopicException {
+        if (!subscriptions.containsKey(subKey) || subscriptions.get(subKey).size() == 0)
+            throw new NotSubscribedException(" for the topic:" + topicName );
+        checkTopicExistence(topicName);
+    }
+
+    private void checkTopicExistence(String topicName) throws NonExistentTopicException {
+        if (!topics.containsKey(topicName))
+            throw new NonExistentTopicException(topicName);
     }
 
 }

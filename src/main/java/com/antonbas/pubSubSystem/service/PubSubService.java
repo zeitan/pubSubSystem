@@ -60,13 +60,15 @@ public class PubSubService {
                 throw  new AuthFailedTopicException("user id + sub key");
 
         }
-        catch(NoSuchAlgorithmException nse) {
-            logger.info("NoSuchAlgorithmException-unsubscribe");
-            throw  nse;
+        catch(NoSuchAlgorithmException nae) {
+            logger.info("NoSuchAlgorithmException-unsubscribe" + nae.getMessage());
+            throw  nae;
         }
         catch(NonExistentTopicException nete) {
             logger.info("NonExistentTopicException-unsubscribe:" + nete.getMessage());
             throw  nete;
+        } catch (NotSubscribedException nse) {
+            logger.info("NotSubscribedException-unsubscribe:" + nse.getMessage());
         }
     }
 
