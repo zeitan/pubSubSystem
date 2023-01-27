@@ -31,7 +31,7 @@ public class PubSubController {
             return new ResponseEntity<>("message published", HttpStatus.OK);
         }
         catch (NonExistentTopicException ex) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
 
     }
@@ -42,17 +42,14 @@ public class PubSubController {
         try {
             return pubSubService.getMessages(topicName, userId, subKey);
         }
-        catch(AuthFailedTopicException afte) {
+        catch(AuthFailedTopicException | NotSubscribedException afte) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, afte.getMessage());
         }
         catch(NoSuchAlgorithmException nsae) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, nsae.getMessage());
         }
         catch(NonExistentTopicException nete) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, nete.getMessage());
-        }
-        catch(NotSubscribedException nse) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, nse.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, nete.getMessage());
         }
     }
 
@@ -66,7 +63,7 @@ public class PubSubController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, nsae.getMessage());
         }
         catch (NonExistentTopicException ex) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }
 
@@ -84,7 +81,7 @@ public class PubSubController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, nsae.getMessage());
         }
         catch (NonExistentTopicException ex) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }
 
