@@ -17,8 +17,8 @@ public class PubSubControllerTest extends AbstractTest {
     public void createMessage() throws Exception {
         String uri =  "/topics/topic_1";
         Message message = new Message();
-        message.payload = "test1";
-        message.duration = 5;
+        message.setPayload("test1");
+        message.setDuration(5);
 
         String inputJson = super.mapToJson(message);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)
@@ -36,7 +36,7 @@ public class PubSubControllerTest extends AbstractTest {
 
         String uri =  "/topics/topic_1/subscribe";
         UserInfo userInfo = new UserInfo();
-        userInfo.userId = "user1";
+        userInfo.setUserId("user1");
 
         String inputJson = super.mapToJson(userInfo);
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)

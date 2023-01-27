@@ -14,24 +14,20 @@ public class PubSubServiceTest {
     @Test
     public void checkingMessagePublished() throws NonExistentTopicException, NoSuchAlgorithmException, AuthFailedTopicException, NotSubscribedException {
         PubSubService pubSubService = new PubSubService();
-        Message messageInput = new Message();
-        messageInput.payload = "message1";
-        messageInput.duration = 5;
+        Message messageInput = new Message("message1",  5);
         String topic = "topic_1";
         String user = "user_1";
         pubSubService.publish(topic, messageInput);
         String subKey = pubSubService.subscribe(topic, user);
         List<String> messages = pubSubService.getMessages(topic, user, subKey);
         assertFalse(messages.isEmpty());
-        assertEquals(messageInput.payload, messages.get(messages.size()-1));
+        assertEquals(messageInput.getPayload(), messages.get(messages.size()-1));
     }
 
     @Test
     public void checkingSubscribeIsOk() throws NonExistentTopicException, NoSuchAlgorithmException {
         PubSubService pubSubService = new PubSubService();
-        Message messageInput = new Message();
-        messageInput.payload = "message1";
-        messageInput.duration = 5;
+        Message messageInput = new Message("message1",  5);
         String topic = "topic_1";
         String user = "user_1";
         pubSubService.publish(topic, messageInput);
@@ -49,9 +45,7 @@ public class PubSubServiceTest {
     @Test
     public void tryingToGetMessagesWithBadSubKey() throws NonExistentTopicException, NoSuchAlgorithmException {
         PubSubService pubSubService = new PubSubService();
-        Message messageInput = new Message();
-        messageInput.payload = "message1";
-        messageInput.duration = 5;
+        Message messageInput = new Message("message1",  5);
         String topic = "topic_1";
         String user = "user_1";
         pubSubService.publish(topic, messageInput);
@@ -63,9 +57,7 @@ public class PubSubServiceTest {
     @Test
     public void checkingUnSubscribeSuccessful() throws NonExistentTopicException, NoSuchAlgorithmException, AuthFailedTopicException, NotSubscribedException {
         PubSubService pubSubService = new PubSubService();
-        Message messageInput = new Message();
-        messageInput.payload = "message1";
-        messageInput.duration = 5;
+        Message messageInput = new Message("message1",  5);
         String topic = "topic_1";
         String user = "user_1";
         pubSubService.publish(topic, messageInput);
@@ -75,5 +67,6 @@ public class PubSubServiceTest {
         assertThrows(NotSubscribedException.class, () -> {
             pubSubService.getMessages(topic, user, subKey);});
     }
+
 
 }

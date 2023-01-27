@@ -42,7 +42,7 @@ public class Topic {
             if (lastSize != newSize) {
                 consumerServed.put(subKey, newSize);
                 messagesToReturn = IntStream.range(lastSize, newSize).mapToObj(this.messages::get)
-                        .filter(x -> x.expiration.compareTo(Instant.now()) > 0).collect(Collectors.toList());
+                        .filter(x -> x.getExpiration().compareTo(Instant.now()) > 0).collect(Collectors.toList());
             } else
                 messagesToReturn = Collections.EMPTY_LIST;
 
@@ -70,7 +70,7 @@ public class Topic {
         synchronized (this.numSubscribers) {
             if (this.messages.size() == 0)
                 return;
-            this.messages.removeIf(x -> x.expiration.compareTo(Instant.now()) < 0);
+            this.messages.removeIf(x -> x.getExpiration().compareTo(Instant.now()) < 0);
             this.consumerServed.replaceAll((key, currentValue) -> (this.messages.size() - 1 < currentValue) ? this.messages.size() - 1 : currentValue);
         }
     }

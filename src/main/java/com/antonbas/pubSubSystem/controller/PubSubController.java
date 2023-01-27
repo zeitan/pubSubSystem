@@ -60,7 +60,7 @@ public class PubSubController {
     @PostMapping(value = "/topics/{topic_name}/subscribe")
     public ResponseEntity<String> subscribe(@PathVariable("topic_name") String topicName, @RequestBody UserInfo userInfo) {
         try {
-            return new ResponseEntity<>(pubSubService.subscribe(topicName, userInfo.userId), HttpStatus.OK);
+            return new ResponseEntity<>(pubSubService.subscribe(topicName, userInfo.getUserId()), HttpStatus.OK);
         }
         catch(NoSuchAlgorithmException nsae) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, nsae.getMessage());
@@ -74,7 +74,7 @@ public class PubSubController {
     @DeleteMapping(value = "/topics/{topic_name}/unsubscribe")
     public ResponseEntity<String> unsubscribe(@PathVariable("topic_name") String topicName, @RequestBody UserInfo userInfo) {
         try {
-            pubSubService.unsubscribe(topicName, userInfo.userId, userInfo.subKey);
+            pubSubService.unsubscribe(topicName, userInfo.getUserId(), userInfo.getSubKey());
             return new ResponseEntity<>("unsubscribed", HttpStatus.OK);
         }
         catch(AuthFailedTopicException afte) {

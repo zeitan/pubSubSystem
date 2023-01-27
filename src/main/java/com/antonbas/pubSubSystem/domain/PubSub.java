@@ -24,8 +24,10 @@ public class PubSub {
     public synchronized void subscribe(String topicName, String subKey) throws NonExistentTopicException  {
         checkTopicExistence(topicName);
         Set<String> topicsSubscribed = subscriptions.getOrDefault(subKey, new HashSet<>());
-        if (topicsSubscribed.add(topicName))
+        if (topicsSubscribed.add(topicName)) {
             topics.get(topicName).addSubscribers();
+            subscriptions.put(subKey, topicsSubscribed);
+        }
     }
 
     public void publish(String topicName, Message message) throws NonExistentTopicException {
